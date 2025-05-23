@@ -1,4 +1,10 @@
 
+import pandas as pd
+from dotenv import load_dotenv
+import os
+# Load environment variables from .env file
+load_dotenv()
+
 import logging
 from Load import get_db_connection
 from Load import (
@@ -75,7 +81,7 @@ def load(location_dim, sales_dim, features_dim, property_fact_table):
             conn.close()
 
 def main():
-    API_KEY = os.getenv("REAL_ESTATE_API_KEY", "e64c48a3b5mshfe9cdd04e4c4a29p18e80bjsn55c3acbad527")
+    API_KEY = os.getenv("api_key")
     
     try:
         logger.info("Starting ETL pipeline...")
