@@ -1,0 +1,3 @@
+.env
+Transformed_file/*.csv
+Raw_file/

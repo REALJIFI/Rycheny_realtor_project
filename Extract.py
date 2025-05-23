@@ -1,6 +1,11 @@
 import requests
 import json
 import pandas as pd
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env file
+load_dotenv()
 
 def fetch_real_estate_data(api_key: str, limit: int = 500) -> list:
     """
@@ -19,7 +24,7 @@ def fetch_real_estate_data(api_key: str, limit: int = 500) -> list:
         "x-rapidapi-host": "realty-mole-property-api.p.rapidapi.com"
     }
     querystring = {"limit": str(limit)}
-    
+
     try:
         response = requests.get(url, headers=headers, params=querystring)
         response.raise_for_status()
@@ -28,39 +33,27 @@ def fetch_real_estate_data(api_key: str, limit: int = 500) -> list:
         print(f"Error fetching data: {e}")
         return []
 
-def save_data_to_json(data: list, filename: str = 'real_estate.json') -> None:
-    """
-    Saves a list of data to a JSON file.
-
-    Args:
-        data (list): The data to save.
-        filename (str): The name of the file to save to.
-    """
+def save_data_to_json(data: list, filename: str = r'Raw_file\OOreal_estate.json') -> None:
+    # Use raw string for Windows file path
+    os.makedirs(os.path.dirname(filename), exist_ok=True)  # Make sure directory exists
     with open(filename, 'w') as file:
         json.dump(data, file, indent=4)
 
-def load_data_to_dataframe(filename: str = 'real_estate.json') -> pd.DataFrame:
-    """
-    Loads JSON data from a file into a pandas DataFrame.
+def load_data_to_dataframe(filename: str = r'Raw_file\OOreal_estate.json') -> pd.DataFrame:
+    with open(filename) as f:
+        data = json.load(f)
+    # If data is a list of dictionaries (likely), create DataFrame directly
+    if isinstance(data, list):
+        return pd.DataFrame(data)
+    # If data is a dictionary of scalars
+    elif isinstance(data, dict):
+        return pd.DataFrame([data])
+    else:
+        raise ValueError("Unsupported JSON data format")
 
-    Args:
-        filename (str): Path to the JSON file.
-
-    Returns:
-        pd.DataFrame: The loaded data as a DataFrame.
-    """
-    with open(filename, 'r') as file:
-        data = json.load(file)
-    return pd.DataFrame(data)
-
-# Example usage block
-if __name__ == "__main__":
-    API_KEY = "e64c48a3b5mshfe9cdd04e4c4a29p18e80bjsn55c3acbad527"
-    
-    # Fetch and save data
-    properties = fetch_real_estate_data(api_key=API_KEY)
-    save_data_to_json(properties)
-
-    # Load data into DataFrame and preview
-    df = load_data_to_dataframe()
-    print(df.head())
+# Example usage:
+# api_key = os.getenv('RAPIDAPI_KEY')
+# data = fetch_real_estate_data(api_key)
+# save_data_to_json(data)
+# real_estate_df = load_data_to_dataframe()
+# print(real_estate_df.head())
